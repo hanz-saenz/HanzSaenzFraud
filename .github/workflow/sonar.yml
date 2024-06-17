@@ -1,0 +1,31 @@
+name: SonarQube Scan
+on:
+  push:
+    branches:
+      - main
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'  # O la versión de Java que uses
+      - name: Install SonarQube Scanner
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+          unzip sonar-scanner-cli-4.6.2.2472-linux.zip
+          mv sonar-scanner-4.6.2.2472-linux sonar-scanner
+          export PATH="$PATH:`pwd`/sonar-scanner/bin"
+      - name: Run SonarQube Scanner
+        env:
+          SONAR_HOST_URL: http://localhost:9000
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Asegúrate de guardar el token en los secrets de GitHub
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=tu_proyecto \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN
